@@ -1,6 +1,19 @@
 #root {
-  max-width: 1280px;
+  max-width: 1650px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+.square {
+  width: 2rem;
+  height: 2rem;
+  display: inline-block;
+  margin: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  font-size: 24px;
+  text-overflow: clip;
+  text-wrap: nowrap;
+  overflow: hidden;
 }
