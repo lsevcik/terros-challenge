@@ -32,7 +32,7 @@ function App() {
     H: [wr, wp, null, null, null, null, bp, br],
   })
 
-  const [currentMove, setCurrentMove] = 'white' as Color;
+  const [currentMove, setCurrentMove] = useState<Color>('white');
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 
   return (

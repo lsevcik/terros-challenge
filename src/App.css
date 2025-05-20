@@ -17,3 +17,8 @@
   text-wrap: nowrap;
   overflow: hidden;
 }
+
+.selected {
+  background-color: #4caf50;
+  color: white;
+}
