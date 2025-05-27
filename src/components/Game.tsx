@@ -1,121 +1,174 @@
-import { useState } from "react";
-import type { Color, Piece } from "../Piece";
-import Square from "./Square";
+import { useState, type Dispatch, type SetStateAction } from 'react'
+import { type Color, type GameBoard, type Location, type Piece } from '../types'
+import { Square } from './Square'
 
-export default function Game({ gameState, setGameState, currentMove, setCurrentMove, setMoveHistory }: { gameState: any; setGameState: any; currentMove: Color; setCurrentMove: any; setMoveHistory: any }) {
-    const [legalMoves, setLegalMoves] = useState<string[]>([]);
-    const [showingLegal, setShowingLegal] = useState(false);
-    const [selected, setSelected] = useState("");
-    const cols = ["A", "B", "C", "D", "E", "F", "G", "H"];
-    const rows = [7, 6, 5, 4, 3, 2, 1, 0];
+type Props = {
+  gameState: GameBoard
+  setGameState: Dispatch<SetStateAction<GameBoard>>
+  currentMove: Color
+  setCurrentMove: Dispatch<SetStateAction<Color>>
+  updateMoveHistory: Dispatch<SetStateAction<string[]>>
+}
 
-    const movePiece = (row: number, col: string) => {
-        const piece = gameState[selected[0]][selected[1]];
-        if (selected !== "") {
-            const newGameState = { ...gameState };
-            newGameState[selected[0]][selected[1]] = null;
-            newGameState[col][row] = piece;
-            setShowingLegal(false)
-            setSelected("");
-            setLegalMoves([]);
-            setCurrentMove(currentMove === "white" ? "black" : "white");
-            setGameState(newGameState);
-        }
-    }
+export function Game({
+  gameState,
+  setGameState,
+  currentMove,
+  setCurrentMove,
+  updateMoveHistory,
+}: Props) {
+  const [legalMoves, setLegalMoves] = useState<Location[]>([])
+  const [showingLegal, setShowingLegal] = useState(false)
+  const [selected, setSelected] = useState<Location>()
 
+  const movePiece = (row: number, col: number) => {
+    if (!selected) return
+    const piece = gameState[selected.col][selected.row] as Piece
+    const newGameState = { ...gameState }
+    const isCapture = newGameState[col][row] !== null
+    const pieceSH = piece.type === 'knight' ? 'N' : piece.type.charAt(0).toUpperCase()
+    newGameState[selected.col][selected.row] = null
+    newGameState[col][row] = piece
+    setShowingLegal(false)
+    setSelected(undefined)
+    updateMoveHistory((prev: string[]) => [
+      ...prev,
+      pieceSH + (isCapture ? 'x' : '') + String.fromCharCode(col + 97) + (row + 1),
+    ])
+    setLegalMoves([])
+    setCurrentMove(currentMove === 'white' ? 'black' : 'white')
+    setGameState(newGameState)
+  }
 
-    const handleSquareClick = (row: number, col: string, isLegal: bool) => {
-        if (showingLegal && legalMoves.includes(`${col}${row}`)) {
-            movePiece(row, col);
-            return;
-        }
-        setSelected(col + row.toString());
-        // TODO: Handle captures and colision checking
-        var newLegalMoves: string[] = [];
-        const piece = gameState[col][row];
-        if (piece && piece.color === currentMove) {
-            if (piece.type === "pawn") {
-                if (piece.color === "white")
-                    newLegalMoves.push(`${col}${row + 1}`);
-                else
-                    newLegalMoves.push(`${col}${row - 1}`);
-            } else if (piece.type === "rook") {
-                for (let i = row + 1; i < 8; i++) {
-                    newLegalMoves.push(`${col}${i}`);
-                }
-                for (let i = row - 1; i >= 0; i--) {
-                    newLegalMoves.push(`${col}${i}`);
-                }
-                for (let i = col.charCodeAt(0) + 1; i < 8; i++) {
-                    newLegalMoves.push(`${String.fromCharCode(i)}${row}`);
-                }
-                for (let i = col.charCodeAt(0) - 1; i >= 0; i--) {
-                    newLegalMoves.push(`${String.fromCharCode(i)}${row}`);
-                }
-            } else if (piece.type === "knight") {
-                [[2, 1], [2, -1], [-2, 1], [-2, -1],
-                    [1, 2], [1, -2], [-1, 2], [-1, -2]].map((move) => {
-                    const newRow = row + move[0];
-                    const newCol = String.fromCharCode(col.charCodeAt(0) + move[1]);
-                    if (newRow >= 0 && newRow < 8 && newCol >= 'A' && newCol <= 'H') {
-                        newLegalMoves.push(`${newCol}${newRow}`);
-                    }
-                })
-            } else if (piece.type === "bishop") {
-                for (let i = 1; i < 8; i++) {
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) + i)}${row + i}`);
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) - i)}${row + i}`);
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) + i)}${row - i}`);
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) - i)}${row - i}`);
-                }
-            } else if (piece.type === "queen") {
-                for (let i = row + 1; i < 8; i++) {
-                    newLegalMoves.push(`${col}${i}`);
-                }
-                for (let i = row - 1; i >= 0; i--) {
-                    newLegalMoves.push(`${col}${i}`);
-                }
-                for (let i = col.charCodeAt(0) + 1; i < 8; i++) {
-                    newLegalMoves.push(`${String.fromCharCode(i)}${row}`);
-                }
-                for (let i = col.charCodeAt(0) - 1; i >= 0; i--) {
-                    newLegalMoves.push(`${String.fromCharCode(i)}${row}`);
-                }
-                for (let i = 1; i < 8; i++) {
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) + i)}${row + i}`);
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) - i)}${row + i}`);
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) + i)}${row - i}`);
-                    newLegalMoves.push(`${String.fromCharCode(col.charCodeAt(0) - i)}${row - i}`);
-                }
-            } else if (piece.type === "king") {
-                [[1, 0], [-1, 0], [0, 1], [0, -1],
-                    [1, 1], [-1, -1], [1, -1], [-1, 1]].map((move) => {
-                        const newRow = row + move[0];
-                        const newCol = String.fromCharCode(col.charCodeAt(0) + move[1]);
-                        if (newRow >= 0 && newRow < 8 && newCol >= 'A' && newCol <= 'H') {
-                            newLegalMoves.push(`${newCol}${newRow}`);
-                        }
-                    })
-            }
-            setShowingLegal(true);
-            setLegalMoves(newLegalMoves);
-        }
-    }
+  const handleSquareClick = (row: number, col: number) => {
+    if (showingLegal && isInLegalMoves(legalMoves, row, col)) return movePiece(row, col)
+    if (gameState[col][row] === null || gameState[col][row].color !== currentMove) return
+    setSelected({ row, col })
+    setShowingLegal(true)
+    setLegalMoves(findLegalMoves(gameState, currentMove, row, col))
+  }
 
-    return (
-        <span className="game-board">
-        {rows.map((row) => (
-            <div className="game-row" key={row}>
-            {cols.map((col) => (
-                <Square
-                row={row}
-                col={col}
+  return (
+    <div>
+      {[...Array(8).keys()].map((row) => {
+        row = 7 - row
+        return (
+          <div key={row}>
+            <span className="row-label">{row + 1}</span>
+            {[...Array(8).keys()].map((col) => (
+              <Square
+                key={`${row}-${col}`}
                 piece={gameState[col][row]}
-                isLegal={legalMoves.includes(`${col}${row}`)}
+                isLegal={isInLegalMoves(legalMoves, row, col)}
                 handleClick={() => handleSquareClick(row, col)}
-                />
+              />
             ))}
-            </div>
+          </div>
+        )
+      })}
+      <div className="col-label">
+        {[...Array(8).keys()].map((col) => (
+          <span key={col}>{String.fromCharCode(col + 97)}</span>
         ))}
-        </span>
-)}
+      </div>
+    </div>
+  )
+}
+
+function isInLegalMoves(legalMoves: Location[], row: number, col: number): boolean {
+  return legalMoves.some((move) => move.row === row && move.col === col)
+}
+
+function findLegalMoves(gameState: GameBoard, turn: Color, row: number, col: number): Location[] {
+  const piece = gameState[col][row]
+  const loc: Location = { col, row }
+  const legalMoves: Location[] = []
+  if (piece && piece.color === turn) {
+    if (piece.type === 'pawn') {
+      let limit = 1
+      const dir = turn === 'white' ? 1 : -1
+      if (row === (turn === 'white' ? 1 : 6)) limit = 2
+      checkPath((loc) => ({ col: loc.col, row: loc.row + dir }), loc, limit, false)
+      ;[
+        { col: col + 1, row: row + dir },
+        { col: col - 1, row: row + dir },
+      ].forEach((newLoc: Location) => {
+        if (validateMove(newLoc)) {
+          const space = gameState[newLoc.col][newLoc.row]
+          if (space && space.color !== turn) {
+            legalMoves.push(newLoc)
+          }
+        }
+      })
+    } else if (piece.type === 'rook') {
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row }), { col, row })
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row }), { col, row })
+      checkPath((loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row })
+      checkPath((loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row })
+    } else if (piece.type === 'knight') {
+      ;[
+        [2, 1],
+        [2, -1],
+        [-2, 1],
+        [-2, -1],
+        [1, 2],
+        [1, -2],
+        [-1, 2],
+        [-1, -2],
+      ].map((move) => {
+        const loc = { col: col + move[0], row: row + move[1] }
+        if (!validateMove(loc)) return
+        const space = gameState[loc.col][loc.row]
+        if (space === null) {
+          legalMoves.push(loc)
+        } else if (space.color !== gameState[col][row]?.color) {
+          legalMoves.push(loc)
+        }
+      })
+    } else if (piece.type === 'bishop') {
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row + 1 }), { col, row }, 8)
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row + 1 }), { col, row }, 8)
+    } else if (piece.type === 'queen') {
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row }), { col, row })
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row }), { col, row })
+      checkPath((loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row })
+      checkPath((loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row })
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row + 1 }), { col, row }, 8)
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row + 1 }), { col, row }, 8)
+    } else if (piece.type === 'king') {
+      checkPath((loc) => ({ col: loc.col + 1, row: loc.row }), { col, row }, 1)
+      checkPath((loc) => ({ col: loc.col - 1, row: loc.row }), { col, row }, 1)
+      checkPath((loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row }, 1)
+      checkPath((loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row }, 1)
+    }
+  }
+  return legalMoves
+
+  function validateMove(newLoc: Location) {
+    return newLoc.col >= 0 && newLoc.col < 8 && newLoc.row >= 0 && newLoc.row < 8
+  }
+
+  function checkPath(
+    reducer: (loc: Location) => Location,
+    loc: Location,
+    limit = 8,
+    captures = true
+  ) {
+    for (let i = 0; i < limit; i++) {
+      loc = reducer(loc)
+      if (!validateMove(loc)) break
+      const space = gameState[loc.col][loc.row]
+      if (space === null) {
+        legalMoves.push(loc)
+        continue
+      } else if (captures && space.color !== gameState[col][row]?.color) {
+        legalMoves.push(loc)
+      }
+      break
+    }
+  }
+}

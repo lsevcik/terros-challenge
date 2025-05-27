@@ -1,5 +1,4 @@
 #root {
-  max-width: 1650px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -9,16 +8,45 @@
   width: 2rem;
   height: 2rem;
   display: inline-block;
-  margin: 5px;
-  background-color: #f0f0f0;
+  margin: 2px;
   border: 1px solid #ccc;
-  font-size: 24px;
+  font-size: 36px;
+  text-overflow: clip;
+  text-wrap: nowrap;
+  overflow: hidden;
+  color: #000;
+  background-color: #ccc;
+}
+
+.highlighted {
+  background-color: #4caf50;
+  color: white;
+}
+
+.capturable {
+  background-color: #ff9800;
+  color: white;
+}
+
+.row-label {
+  width: 2rem;
+  height: 2rem;
+  display: inline-block;
   text-overflow: clip;
   text-wrap: nowrap;
   overflow: hidden;
 }
 
-.selected {
-  background-color: #4caf50;
-  color: white;
+.col-label {
+  padding-left: 48px;
+}
+
+.col-label > span {
+  width: 2rem;
+  height: 2rem;
+  display: inline-block;
+  margin: 2px;
+  text-overflow: clip;
+  text-wrap: nowrap;
+  overflow: hidden;
 }

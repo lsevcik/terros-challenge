@@ -1,10 +1,34 @@
-import type {Piece} from "../Piece";
+import clsx from 'clsx'
+import type { Piece } from '../types'
 
-export default function Square ({ row, col, piece, isLegal, handleClick }: { row: number, col: string, piece: Piece | null, isLegal: boolean, handleClick: () => void }) {
+type Props = {
+  piece: Piece | null
+  isLegal: boolean
+  handleClick: VoidFunction
+}
 
-    return (
-        <span className={ isLegal ? "selected square" : "square"} onClick={handleClick}>
-            { piece ? piece.color[0] + piece.type[0] : " " }
-        </span>
-    );
+const pieceIcons: Record<string, string> = {
+  'black-pawn': '♟',
+  'black-rook': '♜',
+  'black-knight': '♞',
+  'black-bishop': '♝',
+  'black-queen': '♛',
+  'black-king': '♚',
+  'white-pawn': '♙',
+  'white-rook': '♖',
+  'white-knight': '♘',
+  'white-bishop': '♗',
+  'white-queen': '♕',
+  'white-king': '♔',
+}
+
+export function Square({ piece, isLegal, handleClick }: Props) {
+  return (
+    <span
+      className={clsx('square', isLegal && piece && 'capturable', isLegal && 'highlighted')}
+      onClick={handleClick}
+    >
+      {piece ? pieceIcons[`${piece.color}-${piece.type}`] : ' '}
+    </span>
+  )
 }

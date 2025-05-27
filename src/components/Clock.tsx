@@ -1,26 +1,37 @@
-import { useEffect, useState } from "react";
-import type { Color } from "../Piece";
+import { useEffect, useState } from 'react'
+import type { Color } from '../types'
 
-export default function Clock(currentMove: Color) {
-    // TODO: start the clock when the game starts
-    const [whiteTime, setWhiteTime] = useState(0);
-    const [blackTime, setBlackTime] = useState(0);
+type Props = {
+  currentMove: Color
+  gameHasStarted: boolean
+}
 
-    useEffect(() => {
-        setInterval(() => {
-            if (currentMove === 'white') {
-                setWhiteTime((prevTime) => prevTime + 1);
-            } else {
-                setBlackTime((prevTime) => prevTime + 1);
-            }
-        }, 100);
+export function Clock({ currentMove, gameHasStarted }: Props) {
+  const [whiteTime, setWhiteTime] = useState(0)
+  const [blackTime, setBlackTime] = useState(0)
 
-    }, [currentMove]);
+  useEffect(() => {
+    if (!gameHasStarted) return
+    const i = setInterval(() => {
+      if (currentMove === 'white') {
+        setWhiteTime((prevTime) => prevTime + 100)
+      } else {
+        setBlackTime((prevTime) => prevTime + 100)
+      }
+    }, 100)
+    return () => clearInterval(i)
+  }, [currentMove, gameHasStarted])
 
-    return (
-        <div className="clock">
-            <span>{Math.floor(whiteTime/600)}:{Math.floor(whiteTime % 600 / 10)} </span>
-            <span>{Math.floor(blackTime/600)}:{Math.floor(blackTime % 600 / 10)}</span>
-        </div>
-    );
+  return (
+    <div className="flex gap-5 justify-center">
+      <span>{formatTime(whiteTime)}</span>
+      <span>{formatTime(blackTime)}</span>
+    </div>
+  )
+}
+
+function formatTime(milliseconds: number): string {
+  const secs = Math.floor(milliseconds / 1000) % 60
+  const minutes = Math.floor(milliseconds / 60000)
+  return `${minutes}:${secs < 10 ? '0' : ''}${secs}`
 }
