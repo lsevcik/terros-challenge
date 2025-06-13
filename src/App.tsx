@@ -32,8 +32,22 @@ function App() {
     [wr, wp, null, null, null, null, bp, br],
   ])
 
+  const [stateHistory, setStateHistory] = useState<GameBoard[]>([])
+  
   const [currentMove, setCurrentMove] = useState<Color>('white')
   const [moveHistory, setMoveHistory] = useState<string[]>([])
+
+  const undoButtonClicked = () => {
+    console.log(stateHistory)
+    if (stateHistory.length < 1) return
+    const newHistory = [...stateHistory]
+    setGamePieces(stateHistory[stateHistory.length - 1]) // Restore last state
+    newHistory.pop() // Remove the last state
+    setStateHistory(newHistory)
+    setCurrentMove(currentMove === 'white' ? 'black' : 'white') // Switch turn
+    setMoveHistory((prev) => prev.slice(0, -1)) // Remove last move from history
+    console.log(newHistory)
+  }
 
   return (
     <>
@@ -41,8 +55,10 @@ function App() {
         <Clock currentMove={currentMove} gameHasStarted={Boolean(moveHistory.length)}></Clock>
         <div className="move-indicator">{currentMove} to move</div>
         <Game
+          key={JSON.stringify(gamePieces)} // Force re-render on game state change
           gameState={gamePieces}
           setGameState={setGamePieces}
+          setStateHistory={setStateHistory}
           currentMove={currentMove}
           setCurrentMove={setCurrentMove}
           updateMoveHistory={setMoveHistory}
@@ -51,6 +67,7 @@ function App() {
       <div className="flex-1 overflow-y-scroll">
         <MoveList moveHistory={moveHistory}></MoveList>
       </div>
+      <button onClick={undoButtonClicked}>Undo last move</button>
     </>
   )
 }

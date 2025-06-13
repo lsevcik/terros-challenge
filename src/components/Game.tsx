@@ -8,6 +8,7 @@ type Props = {
   currentMove: Color
   setCurrentMove: Dispatch<SetStateAction<Color>>
   updateMoveHistory: Dispatch<SetStateAction<string[]>>
+  setStateHistory: Dispatch<SetStateAction<GameBoard[]>>
 }
 
 export function Game({
@@ -16,6 +17,7 @@ export function Game({
   currentMove,
   setCurrentMove,
   updateMoveHistory,
+  setStateHistory
 }: Props) {
   const [legalMoves, setLegalMoves] = useState<Location[]>([])
   const [showingLegal, setShowingLegal] = useState(false)
@@ -24,7 +26,9 @@ export function Game({
   const movePiece = (row: number, col: number) => {
     if (!selected) return
     const piece = gameState[selected.col][selected.row] as Piece
-    const newGameState = { ...gameState }
+    const oldGameState: GameBoard = gameState.map((col) => col.map((cell) => cell ? { ...cell } : null)) // Deep copy
+    setStateHistory((prev) => [...prev, oldGameState])
+    const newGameState = [ ...gameState ]
     const isCapture = newGameState[col][row] !== null
     const pieceSH = piece.type === 'knight' ? 'N' : piece.type.charAt(0).toUpperCase()
     newGameState[selected.col][selected.row] = null
