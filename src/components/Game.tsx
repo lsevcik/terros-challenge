@@ -92,7 +92,7 @@ function findLegalMoves(gameState: GameBoard, turn: Color, row: number, col: num
       let limit = 1
       const dir = turn === 'white' ? 1 : -1
       if (row === (turn === 'white' ? 1 : 6)) limit = 2
-      checkPath((loc) => ({ col: loc.col, row: loc.row + dir }), loc, limit, false)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row + dir }), loc, limit, false)
       ;[
         { col: col + 1, row: row + dir },
         { col: col - 1, row: row + dir },
@@ -105,10 +105,10 @@ function findLegalMoves(gameState: GameBoard, turn: Color, row: number, col: num
         }
       })
     } else if (piece.type === 'rook') {
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row }), { col, row })
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row }), { col, row })
-      checkPath((loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row })
-      checkPath((loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row })
     } else if (piece.type === 'knight') {
       ;[
         [2, 1],
@@ -130,49 +130,55 @@ function findLegalMoves(gameState: GameBoard, turn: Color, row: number, col: num
         }
       })
     } else if (piece.type === 'bishop') {
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row + 1 }), { col, row }, 8)
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row - 1 }), { col, row }, 8)
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row - 1 }), { col, row }, 8)
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row + 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row + 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row + 1 }), { col, row }, 8)
     } else if (piece.type === 'queen') {
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row }), { col, row })
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row }), { col, row })
-      checkPath((loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row })
-      checkPath((loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row })
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row + 1 }), { col, row }, 8)
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row - 1 }), { col, row }, 8)
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row - 1 }), { col, row }, 8)
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row + 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row })
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row + 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row - 1 }), { col, row }, 8)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row + 1 }), { col, row }, 8)
     } else if (piece.type === 'king') {
-      checkPath((loc) => ({ col: loc.col + 1, row: loc.row }), { col, row }, 1)
-      checkPath((loc) => ({ col: loc.col - 1, row: loc.row }), { col, row }, 1)
-      checkPath((loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row }, 1)
-      checkPath((loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row }, 1)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col + 1, row: loc.row }), { col, row }, 1)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col - 1, row: loc.row }), { col, row }, 1)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row + 1 }), { col, row }, 1)
+      checkPath(legalMoves, gameState, col, row, (loc) => ({ col: loc.col, row: loc.row - 1 }), { col, row }, 1)
     }
   }
   return legalMoves
 
-  function validateMove(newLoc: Location) {
-    return newLoc.col >= 0 && newLoc.col < 8 && newLoc.row >= 0 && newLoc.row < 8
-  }
 
-  function checkPath(
-    reducer: (loc: Location) => Location,
-    loc: Location,
-    limit = 8,
-    captures = true
-  ) {
-    for (let i = 0; i < limit; i++) {
-      loc = reducer(loc)
-      if (!validateMove(loc)) break
-      const space = gameState[loc.col][loc.row]
-      if (space === null) {
-        legalMoves.push(loc)
-        continue
-      } else if (captures && space.color !== gameState[col][row]?.color) {
-        legalMoves.push(loc)
-      }
-      break
+}
+
+export function validateMove(newLoc: Location) {
+  return newLoc.col >= 0 && newLoc.col < 8 && newLoc.row >= 0 && newLoc.row < 8
+}
+
+export function checkPath(
+  legalMoves: Location[],
+  gameState: GameBoard,
+  col: number,
+  row: number,
+  reducer: (loc: Location) => Location,
+  loc: Location,
+  limit = 8,
+  captures = true
+) {
+  for (let i = 0; i < limit; i++) {
+    loc = reducer(loc)
+    if (!validateMove(loc)) break
+    const space = gameState[loc.col][loc.row]
+    if (space === null) {
+      legalMoves.push(loc)
+      continue
+    } else if (captures && space.color !== gameState[col][row]?.color) {
+      legalMoves.push(loc)
     }
+    break
   }
 }
